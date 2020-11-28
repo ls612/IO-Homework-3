@@ -1,11 +1,15 @@
 clear all
 
 %Import the data into a table
-cardata = readtable("C:\Users\Leo\OneDrive\School Stuff\IO\HW3\cardata.txt");
+cardata = readtable("C:\Users\Leo\OneDrive\School Stuff\IO\HW3\IO-Homework-3\cardata.txt");
 
 %QUESTION 2: Maximum Likelihood estimation with exogenous price; need to review the
 %likelihood function with only share data TODO
-
+x_0 = [0 0 0 0 0];
+%Need a ton of trys for the function to work
+options = optimset('MaxFunEvals', 5000);
+%This is actually minimizing the negative
+maximumlikelihood = fminsearch(@likelihoodfn, x_0, options)
 
 %QUESTION 3: Using the s_j - s_0 trick we can just do a simple linear
 %regression, again with the assumption of exogenous price
@@ -28,10 +32,10 @@ for i = 71:90
     
     %shares are already in log form so we need to exponentiate to get the
     %s_0
-    s_0(i - 70) = 1 - sum(exp(s));
+    s_0(i - 70) = 1 - sum(s);
     
-    %ln(s_j - s_0) = X_j \beta + p_j \alpha based on the notes
-    y = log(s - s_0(i - 70));
+    %ln(s_j) - ln(s_0) = X_j \beta + p_j \alpha based on the notes
+    y = log(s) - log(s_0(i - 70));
     
     if i ~= 71
         %We remove the AC regressor and set it's coefficient equal to 0 in 1971
@@ -51,7 +55,7 @@ for i = 71:90
 end
 
 %By algebra from our regession equation we get
-%s_j = exp(X_j \beta + p_j \alpha) + s_0
+%s_j = s_0 * exp(X_j \beta + p_j \alpha) + s_0
 %elasticity is d(s_j)/d(p_j) * (p_j / s_j)
 % = \alpha exp(X_j \beta + p_j \alpha) * (p_j / s_j)
 
@@ -62,4 +66,4 @@ HondaData = table2array(HondaData);
 
 honda_xb = dot(HondaData(1:4), beta_hat_Q3(20, :))
 honda_ap = alpha_hat_Q3(20) * HondaData(5)
-honda_accord_own_price_elasticity = alpha_hat_Q3(20) * exp(honda_xb + honda_ap) * (HondaData(5)/HondaData(6))
+honda_accord_own_price_elasticity = alpha_hat_Q3(20) * s_0(20) * exp(honda_xb + honda_ap) * (HondaData(5)/HondaData(6))

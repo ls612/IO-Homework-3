@@ -1,11 +1,16 @@
 clear all
 
 %Import the data into a table
-cardata = readtable("C:\Users\Leo\OneDrive\School Stuff\IO\HW3\cardata.txt");
+cardata = readtable("C:\Users\Leo\OneDrive\School Stuff\IO\HW3\IO-Homework-3\cardata.txt");
 
 %QUESTION 2: Maximum Likelihood estimation with exogenous price; need to review the
 %likelihood function with only share data TODO
-
+x_0 = [0 0 0 0 0];
+%Need a ton of trys for the function to work
+options = optimset('MaxFunEvals', 5000);
+%This is actually minimizing the negative of the likelihood function, thus
+%maximizing the likelihood function
+maximumlikelihood = fminsearch(@likelihoodfn, x_0, options)
 
 %QUESTION 3: Using the s_j - s_0 trick we can just do a simple linear
 %regression, again with the assumption of exogenous price
